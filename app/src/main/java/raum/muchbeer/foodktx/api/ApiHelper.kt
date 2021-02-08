@@ -8,7 +8,5 @@ import retrofit2.Response
 
 
 class ApiHelper( private val foodService: FoodService) {
-
     suspend fun getFood() : Response<FoodModel> = foodService.getFood(BuildConfig.API_KEY, true)
-
 }

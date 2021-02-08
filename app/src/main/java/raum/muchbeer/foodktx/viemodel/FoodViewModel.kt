@@ -22,4 +22,5 @@ class FoodViewModel(private val repository: FoodRepository) : ViewModel() {
         }
     }
 
+
 }

@@ -1,10 +1,13 @@
 package raum.muchbeer.foodktx
 
+import android.app.Activity
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
@@ -16,6 +19,7 @@ import raum.muchbeer.foodktx.api.FoodInstance
 import raum.muchbeer.foodktx.api.FoodService
 import raum.muchbeer.foodktx.model.Food
 import raum.muchbeer.foodktx.repository.FoodViewModelFactory
+import raum.muchbeer.foodktx.utility.NetworkStatusLiveData
 import raum.muchbeer.foodktx.utility.Status
 import raum.muchbeer.foodktx.viemodel.FoodViewModel
 
@@ -23,11 +27,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: FoodAdapter
     private lateinit var viewModel: FoodViewModel
+    private lateinit var liveNetStat: NetworkStatusLiveData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        liveNetStat = NetworkStatusLiveData(this)
+        liveNetStat.observe(this, Observer {
+            if (it) {
+                networkStatus.visibility = View.GONE
+                Log.d("MainActivity", "NetworkAvailable")
+            } else {
+                networkStatus.visibility = View.VISIBLE
+                networkStatus.text = "No internet connection"
+                Log.d("MainActivity", "No internet connnectio")
+            }
+        })
         viewModel = ViewModelProvider(this, FoodViewModelFactory(ApiHelper(FoodInstance.foodInstance()))).get(FoodViewModel::class.java)
 
         setupUI()
@@ -80,4 +96,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun sharedPreference() {
+        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+            with(sharedPref.edit()) {
+                putString(getString(R.string.app_name), "George").apply()
+            }
+
+      /*  val sharedPref = activity?.getSharedPreferences(
+            getString(R.string.preference_file_key), Context.MODE_PRIVATE)*/
+
+        //Read from preference
+      /*  val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        val defaultValue = resources.getInteger(R.integer.saved_high_score_default_key)
+        val highScore = sharedPref.getInt(getString(R.string.saved_high_score_key), defaultValue)*/
+    }
 }
