@@ -3,43 +3,46 @@ package raum.muchbeer.foodktx.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.food_item.view.*
 import raum.muchbeer.foodktx.R
+import raum.muchbeer.foodktx.databinding.FoodItemBinding
 import raum.muchbeer.foodktx.model.Food
 
-class FoodAdapter(private val foodList: ArrayList<Food>) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
+class FoodAdapter() : ListAdapter<Food, FoodAdapter.FoodViewHolder>(foodDiffUtil) {
 
       override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoodViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-          val view = layoutInflater.inflate(R.layout.food_item, parent, false)
+          val view = FoodItemBinding.inflate(layoutInflater)
         return FoodViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: FoodViewHolder, position: Int) {
-        holder.bind(foodList[position])
+        val food = getItem(position)
+        holder.bind(food)
     }
 
-    override fun getItemCount(): Int = foodList.size
-
-    fun setFood(food: List<Food>) {
-        this.foodList.apply {
-            clear()
-            addAll(food)
-        }
-    }
-
-    class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class FoodViewHolder(val binding: FoodItemBinding) : RecyclerView.ViewHolder(binding.root) {
            fun bind(food:Food) {
-               itemView.apply {
-                   food_name.text = food.title
-                   Glide.with(image.context)
-                       .load(food.image)
-                       .into(image)
-               }
-
-
+               binding.food = food
+               binding.executePendingBindings()
+               Glide.with(binding.image.context)
+                   .load(food.image)
+                   .into(binding.image)
             }
+    }
+
+    companion object foodDiffUtil : DiffUtil.ItemCallback<Food>() {
+        override fun areItemsTheSame(oldItem: Food, newItem: Food): Boolean {
+          return  oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: Food, newItem: Food): Boolean {
+            return oldItem.id == newItem.id
+        }
+
     }
 }

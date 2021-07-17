@@ -1,26 +1,38 @@
 package raum.muchbeer.foodktx.viemodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import raum.muchbeer.foodktx.model.Food
+import raum.muchbeer.foodktx.model.FoodState
 import raum.muchbeer.foodktx.repository.FoodRepository
 import raum.muchbeer.foodktx.utility.Resource
+import javax.inject.Inject
 
-class FoodViewModel(private val repository: FoodRepository) : ViewModel() {
+@HiltViewModel
+class FoodViewModel @Inject constructor(private val repository: FoodRepository) : ViewModel() {
 
-    fun getAllFoods() = liveData(Dispatchers.IO) {
-        emit(Resource.loading(data = null))
+ val retrieveFoods = repository.getFoods().asLiveData()
 
-        try {
-            lateinit var listOfFood : List<Food>
-            listOfFood = repository.retrieveFood().body()!!.results
-          //  emit(Resource.success(data = repository.retrieveFood()))
-            emit(Resource.success(data = listOfFood))
-        } catch (exception: Exception) {
-            emit(Resource.error(data = null,message = exception.message ?: "Unknown error"))
-        }
-    }
+
+/*
+  private  val _query = MutableLiveData<String>()
+    val query : LiveData<String>
+        get() = _query
+
+    val retrieveSearchFood = _query.asFlow()
+        .debounce(300)
+        .filter {
+            it.trim().isEmpty().not()
+        }.distinctUntilChanged()
+        .flatMapLatest {
+            repository.getFoods(it)
+        }.asLiveData()
+*/
 
 
 }

@@ -18,7 +18,10 @@ class FoodInstance {
 
         val client = OkHttpClient.Builder().apply {
             this.addInterceptor(httpLogger)
-                .connectTimeout(30, TimeUnit.SECONDS) }.build()
+                    .retryOnConnectionFailure(true)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    }.build()
 
         fun foodInstance() : FoodService {
             Log.i("FoodInstance", "The application has access the FoodService")
